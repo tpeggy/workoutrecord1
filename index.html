@@ -211,14 +211,14 @@
         <span class="brand-mark" aria-hidden="true">c·d</span>
         <span class="brand-name">Chill D</span>
       </a>
-      <span class="header-note">A quieter kind of progress</span>
+      <span class="header-note">No pain no gain</span>
     </header>
 
     <main id="top">
       <section class="intro" aria-labelledby="page-title">
         <div>
           <div class="eyebrow">Your training journal</div>
-          <h1 id="page-title">Show up.<br>Stay with it.</h1>
+          <h1 id="page-title">I'm tapped out!<br>我不想努力了!</h1>
           <p class="intro-copy">A little space to notice the work you’re putting in.<br>One session at a time.</p>
         </div>
         <div class="intro-meta">
@@ -251,12 +251,12 @@
                 </div>
               </div>
               <div class="field full">
-                <label for="title">Session name</label>
+                <label for="title">Session</label>
                 <input id="title" name="title" type="text" maxlength="90" placeholder="e.g. Squat" required autocomplete="off">
               </div>
               <div class="field full">
                 <label for="notes">Notes <span style="font-weight:400;color:#898275"></span></label>
-                <textarea id="notes" name="notes" maxlength="1200" placeholder="The last set lacked depth, and the knee shifted slightly inward."></textarea>
+                <textarea id="notes" name="notes" maxlength="1200" placeholder="e.g.The last set lacked depth, and the knee shifted slightly inward."></textarea>
               </div>
             </div>
 
@@ -296,8 +296,8 @@
             <div class="overview-line"><span>Time well spent</span><strong id="savedMinuteCount">0 min</strong></div>
           </section>
           <div class="aside-note">
-            <p>“Consistency is a conversation, not a finish line.”</p>
-            <span>Keep your own pace</span>
+            <p>“當你搵到你嘅 Passion，你日日做同一樣嘢，你唔會覺得係辛苦。”</p>
+            <span>HEA D HO ~ Keep your own pace</span>
           </div>
         </aside>
       </div>
@@ -390,7 +390,7 @@
         const row = document.createElement('div');
         row.className = 'exercise-row';
         row.append(
-          makeCell('Exercise', 'exerciseName', 'text', 'e.g. Squat · 深蹲', safeText(exercise.name)),
+          makeCell('Exercise', 'exerciseName', 'text', 'e.g. Squat', safeText(exercise.name)),
           makeCell('Sets', 'sets', 'number', '3', exercise.sets ?? '', { min: '0', step: '1' }),
           makeCell('Reps', 'reps', 'text', '8–10', safeText(exercise.reps)),
           makeCell('Weight', 'weight', 'number', '40', exercise.weight ?? '', { min: '0', step: '0.5' })
