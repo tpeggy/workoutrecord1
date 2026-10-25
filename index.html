@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chill D - Don't lose your way</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Playfair Display (Hermès serif style), Inter & Noto Sans TC -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        hermes: {
+                            orange: '#E85D04',
+                            deepOrange: '#D94E00',
+                            lightOrange: '#FFEDE0',
+                            cream: '#FAF6F0',
+                            ecru: '#F5EFE6',
+                            charcoal: '#1A1A1A',
+                            softDark: '#2C2A29',
+                            sand: '#D4A373',
+                            accentGold: '#C59B27'
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['"Playfair Display"', 'Georgia', 'serif'],
+                        sans: ['"Inter"', '"Noto Sans TC"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #FAF6F0;
+            color: #1A1A1A;
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+        }
+
+        /* Hermès Subtle Leather Texture & Border Accents */
+        .hermes-card {
+            background: #FFFFFF;
+            border: 1px solid #EAE3D9;
+            box-shadow: 0 10px 25px -5px rgba(232, 93, 4, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+            border-radius: 20px;
+        }
+
+        .hermes-border-accent {
+            border-left: 4px solid #E85D04;
+        }
+
+        /* Pulse animation for voice simulation */
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.15); opacity: 0.3; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+        .voice-pulse {
+            animation: pulse-ring 2s infinite ease-in-out;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #FAF6F0;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #D4A373;
+            border-radius: 10px;
+        }
+
+        /* Mobile Container Frame Toggle */
+        .mobile-frame-mode {
+            max-width: 430px;
+            margin: 0 auto;
+            border: 12px solid #1A1A1A;
+            border-radius: 48px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            min-height: 880px;
+            overflow: hidden;
+        }
+
+        /* Toast Popup */
+        #toast {
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+    </style>
+</head>
+<body class="min-h-screen py-4 sm:py-8 px-2 sm:px-4">
+
+    <!-- Top Toolbar Controls -->
+    <header class="max-w-5xl mx-auto mb-6 flex flex-wrap items-center justify-between gap-4 px-2">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-hermes-orange text-white flex items-center justify-center font-serif text-xl font-bold shadow-md tracking-wider">
+                CD
+            </div>
+            <div>
+                <h1 class="font-serif text-2xl font-bold tracking-wide text-hermes-charcoal flex items-center gap-2">
+                    Chill D <span class="text-xs uppercase font-sans font-medium px-2 py-0.5 bg-hermes-lightOrange text-hermes-orange rounded-full border border-hermes-orange/20">Hermès Edition</span>
+                </h1>
+                <p class="text-xs text-stone-500 font-medium">I'm tapped out! 我不想努力了!</p>
+            </div>
+        </div>
+
+        <!-- View Switcher & Actions -->
+        <div class="flex items-center gap-2">
+            <button id="toggleViewBtn" onclick="toggleDeviceView()" class="px-3 py-1.5 text-xs font-medium bg-white border border-stone-300 rounded-xl hover:bg-stone-50 text-stone-700 transition flex items-center gap-1.5 shadow-sm">
+                <i class="fa-solid font-sm fa-mobile-screen"></i> <span id="viewModeText">Switch to Mobile View</span>
+            </button>
+            <button onclick="loadDemoData()" class="px-3 py-1.5 text-xs font-medium bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl transition flex items-center gap-1">
+                <i class="fa-solid fa-wand-magic-sparkles text-hermes-orange">
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main id="appContainer" class="max-w-5xl mx-auto transition-all duration-300">
+        
+        <!-- Grid Layout for Desktop / Single column for mobile -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <!-- LEFT/TOP COLUMN: Input & Voice Assistant -->
+            <section class="lg:col-span-6 space-y-6">
+
+                <!-- Audio / Quick Smart Input Card -->
+                <div class="hermes-card p-6 border-t-4 border-t-hermes-orange">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-xs font-semibold text-hermes-orange uppercase tracking-widest font-sans">AI Voice & Text Parser</span>
+                        <span class="text-xs text-stone-400 font-serif italic">Chill D Coach v2.4</span>
+                    </div>
+
+                    <h2 class="font-serif text-xl font-bold text-stone-800 mb-1">
+                        你講啦! 你講啦!
+                    </h2>
+                    <p class="text-xs text-stone-500 mb-6">
+                        Speak or type naturally in English or Traditional Chinese. The AI will tag components instantly.
+                    </p>
+
+                    <!-- Voice Record Button Simulation -->
+                    <div class="flex flex-col items-center justify-center my-6 py-4 bg-stone-50/70 rounded-2xl border border-dashed border-stone-200 relative">
+                        <div id="micRing" class="absolute w-20 h-20 rounded-full bg-hermes-orange/10 hidden voice-pulse"></div>
+                        <button id="micBtn" onclick="toggleMic()" class="relative z-10 w-16 h-16 rounded-full bg-hermes-orange hover:bg-hermes-deepOrange text-white shadow-lg shadow-hermes-orange/30 flex items-center justify-center text-2xl transition transform active:scale-95">
+                            <i id="micIcon" class="fa-solid fa-microphone"></i>
+                        </button>
+                        <span id="micStatus" class="text-xs font-medium text-stone-500 mt-3">Tap mic to start recording (Simulated)</span>
+                    </div>
+
+                    <!-- Direct Text Input fallback -->
+                    <div class="space-y-3">
+                        <label class="block text-xs font-semibold text-stone-600 uppercase tracking-wider">Natural Input / Note Prompt</label>
+                        <div class="relative">
+                            <textarea id="rawInput" rows="3" class="w-full p-3.5 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-hermes-orange focus:bg-white focus:outline-none transition font-sans" placeholder="e.g. Squat 40kg 3x8 last set depth insufficient, knee caved in slightly (最後一組深度不足 膝蓋輕微內移)"></textarea>
+                            <button onclick="parseNoteInput()" class="absolute right-2 bottom-3 px-3 py-1.5 bg-hermes-charcoal hover:bg-black text-white text-xs rounded-lg transition font-medium">
+                                Parse Input
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Auto-Parsed Entity Badges Simulation (AVENY UI feature) -->
+                    <div id="parsedTagsContainer" class="mt-5 pt-4 border-t border-stone-100 min-h-[60px]">
+                        <p class="text-[11px] font-semibold text-stone-400 uppercase tracking-wider mb-2">Live AI Entity Recognition (自動標籤識別):</p>
+                        <div id="parsedTags" class="flex flex-wrap gap-2 text-xs">
+                            <span class="px-2.5 py-1 bg-stone-100 text-stone-500 rounded-lg italic">Waiting for voice or text input...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Draft Card (AVENY Style Form Confirmation) -->
+                <div class="hermes-card p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-serif text-lg font-bold text-stone-800">
+                            訓練記錄 <span class="text-xs font-sans font-normal text-stone-400">/ Training record</span>
+                        </h3>
+                        <span class="px-2 py-0.5 bg-amber-50 text-amber-700 text-[11px] font-medium rounded-md border border-amber-200">Auto-Draft</span>
+                    </div>
+
+                    <form id="workoutForm" onsubmit="saveSession(event)" class="space-y-4">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-medium text-stone-600 mb-1">Student Name (學生姓名)</label>
+                                <input type="text" id="studentName" required value="Mario" class="w-full p-2.5 text-sm bg-stone-50 border border-stone-200 rounded-xl focus:ring-1 focus:ring-hermes-orange outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-stone-600 mb-1">Exercise Name (動作)</label>
+                                <input type="text" id="exerciseName" required placeholder="Squat / 深蹲" class="w-full p-2.5 text-sm bg-stone-50 border border-stone-200 rounded-xl focus:ring-1 focus:ring-hermes-orange outline-none">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-medium text-stone-600 mb-1">Weight / Load (重量)</label>
+                                <input type="text" id="weight" required placeholder="40 kg" class="w-full p-2.5 text-sm bg-stone-50 border border-stone-200 rounded-xl focus:ring-1 focus:ring-hermes-orange outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-stone-600 mb-1">Sets x Reps (組數/次數)</label>
+                                <input type="text" id="setsReps" required placeholder="3x8" class="w-full p-2.5 text-sm bg-stone-50 border border-stone-200 rounded-xl focus:ring-1 focus:ring-hermes-orange outline-none">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-stone-600 mb-1">Coach Observation (教練觀察)</label>
+                            <textarea id="notes" rows="2" placeholder="e.g. 最後一組深度不足，膝蓋輕微內移" class="w-full p-2.5 text-sm bg-stone-50 border border-stone-200 rounded-xl focus:ring-1 focus:ring-hermes-orange outline-none"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-stone-600 mb-1">Technical Tips / Pay attention Next Time (技術提示 / 下次留意)</label>
+                            <input type="text" id="tips" placeholder="e.g. 保持腳掌貼地，重心放中後腳掌" class="w-full p-2.5 text-sm bg-stone-50 border border-stone-200 rounded-xl focus:ring-1 focus:ring-hermes-orange outline-none">
+                        </div>
+
+                        <button type="submit" class="w-full py-3 bg-hermes-charcoal hover:bg-black text-white font-medium rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-sm">
+                            <i class="fa-regular fa-circle-check text-hermes-orange"></i> 確認並儲存紀錄 (Confirm & Save)
+                        </button>
+                    </form>
+                </div>
+
+            </section>
+
+            <!-- RIGHT/BOTTOM COLUMN: Log History, Previews & Sharing -->
+            <section class="lg:col-span-6 space-y-6">
+
+                <!-- Client Workout Summary Card (AVENY "SESSION CARD" Preview) -->
+                <div class="hermes-card p-6 bg-gradient-to-br from-white to-stone-50 border-stone-200">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-[10px] font-bold text-hermes-orange tracking-widest uppercase">Session Card Preview</span>
+                            <h2 class="font-serif text-2xl font-bold text-stone-900 mt-0.5" id="cardClientTitle">今堂練咗啲咩？</h2>
+                            <p class="text-xs text-stone-500">Student View Preview · 學生個人記錄卡</p>
+                        </div>
+                        <button onclick="shareRecordModal()" class="px-3 py-1.5 text-xs bg-hermes-lightOrange text-hermes-orange font-semibold rounded-xl border border-hermes-orange/20 hover:bg-hermes-orange hover:text-white transition flex items-center gap-1">
+                            <i class="fa-solid fa-share-nodes"></i> Share
+                        </button>
+                    </div>
+
+                    <!-- Modern Inner Card Visualizer -->
+                    <div id="activePreviewCard" class="bg-white p-5 rounded-2xl border border-stone-200/80 shadow-sm space-y-4">
+                        <div class="flex items-baseline justify-between border-b border-stone-100 pb-3">
+                            <div>
+                                <h4 class="font-bold text-stone-800 text-lg" id="prevExercise">Squat</h4>
+                                <span class="text-xs text-stone-400 font-medium" id="prevReps">3 組 × 8 下</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-2xl font-serif font-bold text-hermes-orange" id="prevWeight">40 kg</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3 text-xs">
+                            <div class="p-3 bg-stone-50 rounded-xl border-l-2 border-hermes-sand">
+                                <span class="font-bold text-stone-700 block mb-0.5 uppercase tracking-wider text-[10px]">教練觀察 (You Said):</span>
+                                <p class="text-stone-700 leading-relaxed" id="prevObs">最後一組深度不足，膝蓋輕微內移。</p>
+                            </div>
+
+                            <div class="p-3 bg-stone-50 rounded-xl border-l-2 border-hermes-orange">
+                                <span class="font-bold text-stone-700 block mb-0.5 uppercase tracking-wider text-[10px]">下次留意 (Next Time):</span>
+                                <p class="text-stone-700 leading-relaxed" id="prevTips">先改善動作品質，保持核心收緊，再評估加重。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Saved Sessions History -->
+                <div class="hermes-card p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="font-serif text-lg font-bold text-stone-800">上堂紀錄 (Past Logs)</h3>
+                            <p class="text-xs text-stone-400">All recorded sessions stored - NO PAIN NO GAIN</p>
+                        </div>
+                        <div class="relative">
+                            <input type="text" id="searchInput" oninput="renderLogs()" placeholder="Search exercise..." class="pl-7 pr-3 py-1.5 text-xs bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-hermes-orange w-32 sm:w-40">
+                            <i class="fa-solid fa-magnifying-glass text-stone-400 text-xs absolute left-2.5 top-2.5"></i>
+                        </div>
+                    </div>
+
+                    <!-- Log List -->
+                    <div id="logsContainer" class="space-y-3 max-h-[420px] overflow-y-auto pr-1">
+                        <!-- Dynamic Logs rendered here -->
+                    </div>
+                </div>
+
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Modal for Sharing (Confirm Finished - AVENY Modal Style) -->
+    <div id="shareModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl border border-stone-200 transform transition-all scale-95" id="modalContent">
+            
+            <div class="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto text-xl font-bold">
+                <i class="fa-solid fa-check"></i>
+            </div>
+
+            <h3 class="font-serif text-2xl font-bold text-stone-800">確認完成 Confirmation Completed！</h3>
+            <p class="text-xs text-stone-500">訓練紀錄已成功儲存並生成專屬連結 Training records have been successfully saved and link generated.</p>
+
+            <div class="flex items-center justify-center gap-3 p-3 bg-stone-50 rounded-2xl border border-stone-100">
+                <div class="w-10 h-10 rounded-full bg-hermes-orange text-white flex items-center justify-center font-bold text-sm">
+                    
+                </div>
+                <div class="text-left">
+                    <span class="text-xs text-stone-400 block">學生名字 Student Name</span>
+                    <span class="text-sm font-bold text-stone-800" id="modalStudentName">Alex</span>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <p class="text-[11px] text-stone-400">分享連結 Share Link</p>
+                <div class="p-2.5 bg-stone-100 rounded-xl text-xs font-mono text-stone-700 select-all break-all" id="shareUrl">
+                    chilld.app/alex-squat-12
+                </div>
+            </div>
+
+            <button onclick="copyShareLink()" class="w-full py-3 bg-hermes-charcoal hover:bg-black text-white text-xs font-medium rounded-xl transition shadow-md flex items-center justify-center gap-2">
+                <i class="fa-regular fa-copy"></i> 複製訓練紀錄連結 (Copy Link)
+            </button>
+
+            <button onclick="closeModal()" class="text-xs text-stone-400 hover:text-stone-600 underline block mx-auto pt-2">
+                Close (關閉)
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-stone-900 text-white text-xs font-medium px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2 translate-y-20 opacity-0 pointer-events-none z-50">
+        <i class="fa-solid fa-circle-info text-hermes-orange"></i>
+        <span id="toastMsg">Action complete</span>
+    </div>
+
+    <!-- Application JavaScript Logic -->
+    <script>
+        // State Management
+        let workoutLogs = JSON.parse(localStorage.getItem('chilld_workout_logs')) || [
+            {
+                id: 1,
+                student: 'Mario',
+                exercise: 'Squat',
+                weight: '40 kg',
+                setsReps: '3 × 8',
+                notes: '最後一組深度不足，膝蓋輕微內移。',
+                tips: '先改善動作品質，保持核心收緊，再評估加重。',
+                date: '2026-10-25 10:05'
+            },
+            {
+                id: 2,
+                student: 'Mario',
+                exercise: 'Bench Press',
+                weight: '50 kg',
+                setsReps: '4 × 6',
+                notes: '觸胸位置穩定，最後兩下發力略有不對稱。',
+                tips: '注意肩胛骨持續沉背收緊。',
+                date: '2026-10-23 15:30'
+            }
+        ];
+
+        let isMicRecording = false;
+        let micInterval = null;
+        let isMobileFrame = false;
+
+        // On Page Load
+        window.addEventListener('DOMContentLoaded', () => {
+            renderLogs();
+            if(workoutLogs.length > 0) {
+                updatePreviewCard(workoutLogs[0]);
+            }
+        });
+
+        // Toggle Device View Mode (Mobile Frame vs Responsive Grid)
+        function toggleDeviceView() {
+            const container = document.getElementById('appContainer');
+            const viewText = document.getElementById('viewModeText');
+            isMobileFrame = !isMobileFrame;
+
+            if (isMobileFrame) {
+                container.classList.add('mobile-frame-mode', 'p-4', 'bg-white');
+                viewText.innerText = "Switch to Full Layout";
+                showToast("Switched to AVENY Mobile Preview Mode");
+            } else {
+                container.classList.remove('mobile-frame-mode', 'p-4', 'bg-white');
+                viewText.innerText = "Switch to Mobile View";
+                showToast("Switched to Standard Layout");
+            }
+        }
+
+        // Voice Recording Simulation
+        function toggleMic() {
+            const micBtn = document.getElementById('micBtn');
+            const micIcon = document.getElementById('micIcon');
+            const micRing = document.getElementById('micRing');
+            const micStatus = document.getElementById('micStatus');
+
+            isMicRecording = !isMicRecording;
+
+            if (isMicRecording) {
+                micBtn.classList.remove('bg-hermes-orange');
+                micBtn.classList.add('bg-red-600');
+                micIcon.className = 'fa-solid fa-stop';
+                micRing.classList.remove('hidden');
+                
+                let seconds = 0;
+                micStatus.innerText = `錄音中 Recording (0:00) ... 講緊咩?`;
+                micInterval = setInterval(() => {
+                    seconds++;
+                    micStatus.innerText = `錄音中 Recording (0:0${seconds}) ... 講訓練細節!`;
+                    if(seconds >= 4) {
+                        toggleMic(); // Auto stop simulation after 4 secs
+                        loadDemoData();
+                        showToast("Voice transcribed & auto-parsed!");
+                    }
+                }, 1000);
+            } else {
+                clearInterval(micInterval);
+                micBtn.classList.remove('bg-red-600');
+                micBtn.classList.add('bg-hermes-orange');
+                micIcon.className = 'fa-solid fa-microphone';
+                micRing.classList.add('hidden');
+                micStatus.innerText = 'Tap mic to start recording (Simulated)';
+            }
+        }
+
+        // Text parsing logic (simulates AI tag generation like AVENY UI)
+        function parseNoteInput() {
+            const rawText = document.getElementById('rawInput').value.trim();
+            if (!rawText) {
+                showToast("Please enter a note to parse");
+                return;
+            }
+
+            const tagsContainer = document.getElementById('parsedTags');
+            tagsContainer.innerHTML = '';
+
+            // Simple pattern matching for demo
+            let exercise = 'Workout';
+            let weight = 'Unspecified';
+            let reps = '3x8';
+            let obs = rawText;
+
+            if (rawText.toLowerCase().includes('squat') || rawText.includes('深蹲')) exercise = 'Squat (深蹲)';
+            else if (rawText.toLowerCase().includes('bench') || rawText.includes('臥推')) exercise = 'Bench Press (臥推)';
+            else if (rawText.toLowerCase().includes('deadlift') || rawText.includes('硬舉')) exercise = 'Deadlift (硬舉)';
+
+            const weightMatch = rawText.match(/(\d+\s*kg|\d+\s*磅)/i);
+            if (weightMatch) weight = weightMatch[0];
+
+            const repsMatch = rawText.match(/(\d+\s*x\s*\d+|\d+組\d+下)/i);
+            if (repsMatch) reps = repsMatch[0];
+
+            // Render tagged pills (AVENY UI tag design)
+            const tags = [
+                { label: exercise, type: '動作 / Exercise', bg: 'bg-blue-100 text-blue-800' },
+                { label: weight, type: '重量 / Load', bg: 'bg-purple-100 text-purple-800' },
+                { label: reps, type: '次數 / Sets', bg: 'bg-emerald-100 text-emerald-800' },
+                { label: obs.length > 20 ? obs.substring(0, 18) + '...' : obs, type: '觀察 / Notes', bg: 'bg-amber-100 text-amber-800' }
+            ];
+
+            tags.forEach(t => {
+                const badge = document.createElement('span');
+                badge.className = `px-2.5 py-1 rounded-lg font-medium text-xs flex items-center gap-1 ${t.bg}`;
+                badge.innerHTML = `${t.label} <span class="opacity-60 text-[10px]">[${t.type}]</span>`;
+                tagsContainer.appendChild(badge);
+            });
+
+            // Auto fill form
+            document.getElementById('exerciseName').value = exercise.split(' ')[0];
+            document.getElementById('weight').value = weight !== 'Unspecified' ? weight : '40 kg';
+            document.getElementById('setsReps').value = reps;
+            document.getElementById('notes').value = rawText;
+
+            showToast("Note parsed into structured draft!");
+        }
+
+        // Save session to LocalStorage
+        function saveSession(e) {
+            e.preventDefault();
+
+            const newLog = {
+                id: Date.now(),
+                student: document.getElementById('studentName').value || 'Alex',
+                exercise: document.getElementById('exerciseName').value,
+                weight: document.getElementById('weight').value,
+                setsReps: document.getElementById('setsReps').value,
+                notes: document.getElementById('notes').value || '無特殊觀察',
+                tips: document.getElementById('tips').value || '保持品質，持續練習。',
+                date: new Date().toLocaleString('zh-HK', { hour12: false }).slice(0, 16)
+            };
+
+            workoutLogs.unshift(newLog);
+            localStorage.setItem('chilld_workout_logs', JSON.stringify(workoutLogs));
+
+            renderLogs();
+            updatePreviewCard(newLog);
+            shareRecordModal(newLog);
+            
+            // Clear input form
+            document.getElementById('rawInput').value = '';
+            document.getElementById('parsedTags').innerHTML = '<span class="text-xs text-stone-400 italic">Input saved! Ready for next session.</span>';
+        }
+
+        // Render saved session list
+        function renderLogs() {
+            const container = document.getElementById('logsContainer');
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            container.innerHTML = '';
+
+            const filtered = workoutLogs.filter(log => 
+                log.exercise.toLowerCase().includes(query) || 
+                log.notes.toLowerCase().includes(query) ||
+                log.student.toLowerCase().includes(query)
+            );
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="text-center py-6 text-stone-400 text-xs">No records found.</div>`;
+                return;
+            }
+
+            filtered.forEach(log => {
+                const item = document.createElement('div');
+                item.className = 'p-3.5 bg-stone-50 hover:bg-stone-100/80 rounded-2xl border border-stone-200/70 transition cursor-pointer flex justify-between items-center group';
+                item.onclick = () => updatePreviewCard(log);
+
+                item.innerHTML = `
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-stone-800 text-sm">${log.exercise}</span>
+                            <span class="text-xs px-2 py-0.5 bg-stone-200 text-stone-700 rounded-md font-medium">${log.weight}</span>
+                            <span class="text-xs text-stone-500">${log.setsReps}</span>
+                        </div>
+                        <p class="text-xs text-stone-500 line-clamp-1">${log.notes}</p>
+                        <span class="text-[10px] text-stone-400 block">${log.date} · 學生: ${log.student}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="event.stopPropagation(); deleteLog(${log.id})" class="text-stone-300 hover:text-red-500 p-1.5 transition">
+                            <i class="fa-regular fa-trash-can text-xs"></i>
+                        </button>
+                        <i class="fa-solid fa-chevron-right text-stone-300 text-xs group-hover:translate-x-0.5 transition"></i>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // Update active preview card
+        function updatePreviewCard(log) {
+            document.getElementById('prevExercise').innerText = log.exercise;
+            document.getElementById('prevWeight').innerText = log.weight;
+            document.getElementById('prevReps').innerText = log.setsReps;
+            document.getElementById('prevObs').innerText = log.notes;
+            document.getElementById('prevTips').innerText = log.tips;
+            document.getElementById('cardClientTitle').innerText = `${log.student} 的訓練筆記`;
+        }
+
+        // Delete a log
+        function deleteLog(id) {
+            workoutLogs = workoutLogs.filter(l => l.id !== id);
+            localStorage.setItem('chilld_workout_logs', JSON.stringify(workoutLogs));
+            renderLogs();
+            showToast("Record deleted");
+        }
+
+        // Load Preset Demo Data (Cantonese Traditional Chinese)
+        function loadDemoData() {
+            document.getElementById('rawInput').value = 'Squat 40kg 3x8 最後一組深度不足，膝蓋輕微內移';
+            parseNoteInput();
+            document.getElementById('tips').value = '先改善動作品質，保持腳掌貼地，再評估加重';
+        }
+
+        // Share Link Modal
+        function shareRecordModal(log) {
+            const currentLog = log || workoutLogs[0] || { student: 'Alex', exercise: 'squat' };
+            document.getElementById('modalStudentName').innerText = currentLog.student;
+            
+            const slug = `${currentLog.student.toLowerCase()}-${currentLog.exercise.toLowerCase().replace(/\s+/g, '')}-12`;
+            document.getElementById('shareUrl').innerText = `chilld.app/${slug}`;
+            
+            const modal = document.getElementById('shareModal');
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('shareModal').classList.add('hidden');
+        }
+
+        // Clipboard Copy Helper
+        function copyShareLink() {
+            const linkText = document.getElementById('shareUrl').innerText;
+            
+            // Clipboard fallback as per specification standard
+            const tempInput = document.createElement("input");
+            tempInput.value = linkText;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+
+            showToast("Link copied to clipboard!");
+            closeModal();
+        }
+
+        // Toast Message System
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            
+            toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
